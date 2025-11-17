@@ -8,6 +8,7 @@
  - Create, view, edit, delete notes
  - Realtime multi-tab sync (BroadcastChannel with storage fallback)
  - LocalStorage persistence with optional remote API
+ - Supabase optional direct mode + Realtime (INSERT/UPDATE/DELETE on public.notes)
  - Accessibility: ARIA labels, keyboard navigable
  - Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
  - Optional API integration via `REACT_APP_API_BASE` (Next.js /api/notes or JSONPlaceholder)

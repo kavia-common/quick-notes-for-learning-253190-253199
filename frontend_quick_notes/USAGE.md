@@ -6,6 +6,7 @@
  - Persistence: localStorage by default
  - Optional API base URL via REACT_APP_API_BASE (not enabled by default)
  - Feature flags: REACT_APP_FEATURE_FLAGS JSON (e.g. {"useRemoteApi": false})
+ - Optional Supabase direct mode with Realtime subscriptions to public.notes
  - Accessibility: labeled controls, roles, aria-live regions
  - Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
  - Theme: Ocean Professional (primary #1E3A8A, secondary #F59E0B)
@@ -53,6 +54,42 @@
  - JSONPlaceholder is a fake online REST API; writes are not persisted on the server.
  - After refresh, you will see the original list again (from /posts); local cache persists in your browser.
  
+ ### Option C: Supabase Direct Mode + Realtime (Postgres Changes)
+ 
+ Enable the app to subscribe directly to Supabase Realtime events (INSERT/UPDATE/DELETE) on the `public.notes` table.
+ 
+ 1) Set environment variables in your React app:
+ 
+ - REACT_APP_FEATURE_FLAGS={"useSupabaseDirect":true}
+ - REACT_APP_SUPABASE_URL=YOUR_SUPABASE_PROJECT_URL
+ - REACT_APP_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+ 
+ 2) In your Supabase Dashboard:
+ 
+ - Database -> Realtime -> Publications: ensure `supabase_realtime` publication includes `public.notes` table.
+   If not, add `public.notes` to the publication.
+ - Create table `public.notes` with columns:
+   - id: uuid (default uuid_generate_v4()) or bigint
+   - title: text
+   - content: text
+   - created_at: timestamptz default now()
+   - updated_at: timestamptz default now() (and a trigger to update on changes if desired)
+ - Optional: Configure RLS policies if RLS is enabled. This app does not include auth; for testing, you can disable RLS or create permissive policies for anon key as needed.
+ 
+ 3) Start the React app: `npm start`
+ 
+ Behavior:
+ - When `useSupabaseDirect` is true and both `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` are set, the app will:
+   - Create a Supabase client
+   - Subscribe to realtime changes on `public.notes` using Postgres Changes
+   - Dispatch UI updates on INSERT/UPDATE/DELETE
+ - Local BroadcastChannel multi-tab sync remains active.
+ - No secrets are logged.
+ 
+ Limitations:
+ - Without proper RLS policies or disabled RLS, direct anon access may fail.
+ - CRUD operations are still handled by the existing repository (local/optional REST). Realtime provides live UI updates when other clients modify the table directly.
+ 
  NOTE:
- - Do not change preview/start scripts; use REACT_APP_API_BASE to toggle remote mode.
+ - Do not change preview/start scripts.
  - Other environment variables supported: REACT_APP_FEATURE_FLAGS, REACT_APP_NODE_ENV, etc.
