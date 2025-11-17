@@ -1,6 +1,30 @@
  # Quick Notes React App (Ocean Professional + Quick Note Community)
 
  A fast, lightweight note-taking app with a login screen, sidebar list, and editor panel.
+ 
+ ## Storybook & Visual Regression
+
+ We include Storybook for interactive component docs and a local Playwright-based visual snapshot test setup.
+
+ - Run Storybook:
+   - npm run storybook
+   - Opens on http://localhost:6006
+   - Use the toolbar "Theme" control to switch between "ocean" and "quicknote" (this toggles the `data-theme` attribute to load CSS variables from src/theme/index.css).
+ - Build static Storybook:
+   - npm run build-storybook
+   - Output in storybook-static/
+ - Run local visual tests (screenshots):
+   - npm run test-visual
+   - Flow:
+     1) Builds Storybook (static)
+     2) Serves it locally on port 6007
+     3) Runs Playwright to capture snapshots for selected stories across both themes
+     4) Exits and stops the local server
+   - Baseline images are stored under Playwright’s snapshots folder in your test artifacts. On CI, compare the diffs or update snapshots locally as needed.
+
+ Notes:
+ - No external services (e.g., Chromatic) are required, but can be integrated later if desired.
+ - Storybook automatically loads global theme CSS from `src/theme/index.css` so all components match the app themes.
 
  ## Highlights
  - Multi-theme support:

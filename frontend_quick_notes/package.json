@@ -12,7 +12,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test-visual:serve": "npx http-server ./storybook-static -p 6007 -c-1",
+    "test-visual": "npm run build-storybook && npm run test-visual:serve & playwright test --config=./storybook-tests/playwright.config.js && pkill -f \"http-server ./storybook-static -p 6007\" || true"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -30,9 +34,20 @@
     ]
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^7.6.17",
+    "@storybook/addon-essentials": "^7.6.17",
+    "@storybook/addon-interactions": "^7.6.17",
+    "@storybook/addon-toolbars": "^7.6.17",
+    "@storybook/react": "^7.6.17",
+    "@storybook/react-webpack5": "^7.6.17",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.2",
-    "cross-env": "^7.0.3"
+    "@types/node": "^18.19.31",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "cross-env": "^7.0.3",
+    "http-server": "^14.1.1",
+    "playwright": "^1.48.2"
   }
 }
