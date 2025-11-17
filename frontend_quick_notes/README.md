@@ -13,6 +13,23 @@
  - Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
  - Optional API integration via `REACT_APP_API_BASE` (Next.js /api/notes or JSONPlaceholder)
  
+ ## Theming and Design Tokens
+ 
+ - Global styles live in `src/theme/index.css`. It imports `assets/common.css` (Figma tokens) and defines Ocean Professional CSS variables:
+   - Colors: `--ocean-primary`, `--ocean-secondary`, `--ocean-success`, `--ocean-error`, `--ocean-bg`, `--ocean-surface`, `--ocean-text`, `--ocean-muted`
+   - Spacing: `--space-*`
+   - Radius: `--ocean-radius-*`
+   - Shadows: `--ocean-shadow-*`
+ - JS theme access is available via `src/theme/theme.js`:
+   - `ThemeProvider` and `useTheme()` expose a theme object for component logic (do not hardcode secrets).
+ - Reusable UI components are under `src/components/ui`:
+   - `Button.jsx`, `IconButton.jsx`, `Card.jsx` (includes `NoteCard`), `Header.jsx`, `Sidebar.jsx`, `TextEditor.jsx`
+ - The layout and styles reference `assets/stickynote-1-2.css` for spacing/structure mapping and typography helpers in `assets/common.css`.
+ 
+ To tweak colors/spacing:
+ 1. Edit tokens in `assets/common.css` (design-level) or
+ 2. Adjust CSS variables in `src/theme/index.css` (app-level).
+ 
  ## Scripts
  - `npm start` – run locally
  - `npm test` – unit tests

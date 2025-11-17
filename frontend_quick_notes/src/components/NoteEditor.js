@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNotes } from '../store/NotesContext';
+import Button from './ui/Button';
+import TextEditor from './ui/TextEditor';
 
 // PUBLIC_INTERFACE
 export default function NoteEditor({ onSaved }) {
@@ -38,8 +40,6 @@ export default function NoteEditor({ onSaved }) {
     onSaved?.();
   }, [active, title, content, actions, onSaved, validate]);
 
-  // expose save to parent via return? parent will pass a callback, we call onSaved after save
-
   if (!active) {
     return (
       <div className="note-empty" aria-live="polite">
@@ -61,26 +61,22 @@ export default function NoteEditor({ onSaved }) {
           aria-invalid={!!err}
           aria-describedby={err ? 'title-error' : undefined}
         />
-        <button type="button" className="btn" onClick={save} aria-label="Save note">
+        <Button onClick={save} aria-label="Save note">
           Save
-        </button>
+        </Button>
       </div>
       {err && (
-        <div role="alert" id="title-error" style={{ color: 'var(--color-error)', padding: '8px 12px' }}>
+        <div role="alert" id="title-error" style={{ color: 'var(--ocean-error)', padding: '8px 12px' }}>
           {err}
         </div>
       )}
       <div className="split" role="region" aria-label="Editor and preview">
-        <div className="editor-area">
-          <label htmlFor="content" className="visually-hidden">Note content</label>
-          <textarea
-            id="content"
-            className="textarea"
-            placeholder="Write your note here... Markdown/plain text"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
+        <TextEditor
+          id="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Write your note here... Markdown/plain text"
+        />
         <div className="viewer-area">
           <div className="viewer" aria-label="Rendered note preview">
             <h2 style={{ marginTop: 0 }}>{title || 'Untitled'}</h2>

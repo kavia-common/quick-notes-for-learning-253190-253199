@@ -1,23 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './App.css';
+import './theme/index.css';
 import './theme.css';
 import { NotesProvider, useNotes } from './store/NotesContext';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
+import ThemedHeader from './components/ui/Header';
+import ThemedSidebar from './components/ui/Sidebar';
 import NoteEditor from './components/NoteEditor';
-import NoteView from './components/NoteView';
 import LoginPage from './components/LoginPage';
+import { ThemeProvider } from './theme/theme';
 
 // Wrapper to handle keyboard shortcuts and compose layout
 function MainShell() {
   const { state, actions } = useNotes();
   const editorSaveRef = useRef(null);
-  const [theme, setTheme] = useState('light');
+  const [themeMode, setThemeMode] = useState('light');
 
   // Apply theme attribute
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    document.documentElement.setAttribute('data-theme', themeMode);
+  }, [themeMode]);
 
   // Keyboard shortcuts: Ctrl/Cmd+N, Ctrl/Cmd+S
   useEffect(() => {
@@ -29,7 +29,6 @@ function MainShell() {
         actions.createNote();
       } else if (e.key.toLowerCase() === 's') {
         e.preventDefault();
-        // trigger save by dispatching update of current fields via custom event
         const evt = new CustomEvent('quicknotes:save');
         window.dispatchEvent(evt);
       }
@@ -51,19 +50,19 @@ function MainShell() {
   return (
     <div className="app-shell">
       <button
-        className="theme-toggle"
-        onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
-        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        className="btn"
+        onClick={() => setThemeMode((t) => (t === 'light' ? 'dark' : 'light'))}
+        aria-label={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
         style={{ position: 'fixed', top: 12, right: 12, zIndex: 20 }}
       >
-        {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+        {themeMode === 'light' ? '🌙 Dark' : '☀️ Light'}
       </button>
-      <Header onSave={onSave} />
+      <ThemedHeader onSave={onSave} />
       <main className="layout" role="main">
-        <Sidebar />
+        <ThemedSidebar />
         <section className="main-panel" aria-label="Editor panel">
           {state.error && (
-            <div role="alert" style={{ color: 'var(--color-error)', padding: 12 }}>
+            <div role="alert" style={{ color: 'var(--ocean-error)', padding: 12 }}>
               {state.error}
             </div>
           )}
@@ -91,9 +90,11 @@ function App() {
   }, []);
 
   return (
-    <NotesProvider>
-      <MainShell />
-    </NotesProvider>
+    <ThemeProvider>
+      <NotesProvider>
+        <MainShell />
+      </NotesProvider>
+    </ThemeProvider>
   );
 }
 

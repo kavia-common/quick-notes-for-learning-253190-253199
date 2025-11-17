@@ -1,0 +1,284 @@
+@import "../assets/common.css";
+/* Ensure this path exists: src/theme/index.css -> ../assets/common.css */
+
+/* Ocean Professional - global variables */
+:root {
+  --ocean-primary: #1E3A8A;
+  --ocean-secondary: #F59E0B;
+  --ocean-success: #059669;
+  --ocean-error: #DC2626;
+
+  --ocean-bg: #F3F4F6;
+  --ocean-surface: #FFFFFF;
+  --ocean-text: #111827;
+  --ocean-muted: #6B7280;
+
+  --ocean-shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --ocean-shadow-md: 0 4px 10px rgba(0,0,0,0.10);
+
+  --ocean-radius-sm: 8px;
+  --ocean-radius-md: 12px;
+  --ocean-radius-lg: 16px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Map Figma token helpers if needed */
+  --color-ink: var(--color-000000);
+  --color-token-grey-1: var(--color-d7d1d6);
+  --color-token-grey-2: var(--color-d7d1d1);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  background: var(--ocean-bg);
+  color: var(--ocean-text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* App shell layout based on assets/stickynote-1-2.css structure */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background:
+    linear-gradient(120deg, rgba(30,58,138,0.06), rgba(245,158,11,0.06));
+}
+
+/* Header */
+.header {
+  background: linear-gradient(
+      90deg,
+      rgba(30,58,138,0.96) 0%,
+      rgba(30,58,138,0.9) 65%,
+      rgba(245,158,11,0.22) 100%
+    );
+  color: #fff;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--ocean-shadow-md);
+}
+
+.header-title {
+  font-weight: 700;
+  letter-spacing: .2px;
+  margin: 0;
+  font-size: 18px;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Layout: sidebar + main */
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.sidebar {
+  background: var(--ocean-surface);
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-md);
+  box-shadow: var(--ocean-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sidebar-search {
+  padding: var(--space-3);
+  border-bottom: 1px solid #E5E7EB;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-sm);
+  font-size: 14px;
+  background: #fff;
+  color: var(--ocean-text);
+}
+.input:focus {
+  outline: 2px solid rgba(30,58,138,0.2);
+  border-color: var(--ocean-primary);
+}
+
+/* Buttons */
+.btn {
+  border: 1px solid rgba(0,0,0,0.06);
+  background: #fff;
+  color: var(--ocean-text);
+  padding: 8px 12px;
+  border-radius: var(--ocean-radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform .05s ease, background .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.btn:hover { background: #f8fafc; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--ocean-secondary); outline-offset: 2px; }
+
+.btn-primary {
+  background: var(--ocean-secondary);
+  color: #1F2937;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.btn-primary:hover { filter: brightness(0.98); }
+
+/* Note list */
+.note-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2);
+  overflow: auto;
+}
+
+.note-list-item {
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-sm);
+  padding: 10px;
+  margin: var(--space-2) var(--space-1);
+  cursor: pointer;
+  background: #fff;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+.note-list-item:hover { border-color: #D1D5DB; }
+.note-list-item.active {
+  border-color: var(--ocean-primary);
+  box-shadow: inset 0 0 0 1px var(--ocean-primary);
+  background: #F9FAFB;
+}
+
+.note-list-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0;
+}
+
+.note-list-meta {
+  font-size: 12px;
+  color: var(--ocean-muted);
+}
+
+/* Main panel */
+.main-panel {
+  background: var(--ocean-surface);
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-md);
+  box-shadow: var(--ocean-shadow-sm);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 0;
+}
+
+/* Editor */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-bottom: 1px solid #E5E7EB;
+  background: #FAFAFA;
+}
+
+.editor-title-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--ocean-radius-sm);
+  border: 1px solid #E5E7EB;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+
+.editor-area, .viewer-area {
+  padding: var(--space-3);
+  min-height: 0;
+}
+
+.textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-sm);
+  padding: 12px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+}
+
+.viewer {
+  height: 100%;
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-sm);
+  padding: 12px;
+  overflow: auto;
+  background: #FCFCFD;
+}
+
+/* Cards */
+.card {
+  background: var(--ocean-surface);
+  border: 1px solid #E5E7EB;
+  border-radius: var(--ocean-radius-md);
+  box-shadow: var(--ocean-shadow-sm);
+}
+
+.note-empty {
+  padding: 40px;
+  margin: 20px;
+  text-align: center;
+  border: 2px dashed #E5E7EB;
+  border-radius: 14px;
+  color: var(--ocean-muted);
+}
+
+.footer-hint {
+  font-size: 12px;
+  color: var(--ocean-muted);
+  padding: 8px 12px;
+  border-top: 1px solid #E5E7EB;
+  background: #FAFAFA;
+  border-bottom-left-radius: var(--ocean-radius-md);
+  border-bottom-right-radius: var(--ocean-radius-md);
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .split { grid-template-columns: 1fr; }
+  .viewer-area { display: none; }
+}
+
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; border: 0; padding: 0; margin: -1px;
+}
