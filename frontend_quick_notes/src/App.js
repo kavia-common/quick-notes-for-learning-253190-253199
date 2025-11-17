@@ -1,48 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
+import './theme.css';
+import { NotesProvider, useNotes } from './store/NotesContext';
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import NoteEditor from './components/NoteEditor';
+import NoteView from './components/NoteView';
 
-// PUBLIC_INTERFACE
-function App() {
+// Wrapper to handle keyboard shortcuts and compose layout
+function MainShell() {
+  const { state, actions } = useNotes();
+  const editorSaveRef = useRef(null);
   const [theme, setTheme] = useState('light');
 
-  // Effect to apply theme to document element
+  // Apply theme attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  // Keyboard shortcuts: Ctrl/Cmd+N, Ctrl/Cmd+S
+  useEffect(() => {
+    const handler = (e) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      if (e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        actions.createNote();
+      } else if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        // trigger save by dispatching update of current fields via custom event
+        const evt = new CustomEvent('quicknotes:save');
+        window.dispatchEvent(evt);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [actions]);
+
+  const onSave = () => {
+    const evt = new CustomEvent('quicknotes:save');
+    window.dispatchEvent(evt);
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-shell">
+      <button
+        className="theme-toggle"
+        onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        style={{ position: 'fixed', top: 12, right: 12, zIndex: 20 }}
+      >
+        {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+      </button>
+      <Header onSave={onSave} />
+      <main className="layout" role="main">
+        <Sidebar />
+        <section className="main-panel" aria-label="Editor panel">
+          {state.error && (
+            <div role="alert" style={{ color: 'var(--color-error)', padding: 12 }}>
+              {state.error}
+            </div>
+          )}
+          <NoteEditor
+            onSaved={() => {}}
+            ref={editorSaveRef}
+          />
+        </section>
+      </main>
     </div>
+  );
+}
+
+// PUBLIC_INTERFACE
+function App() {
+  /** Root application component providing NotesProvider and composed UI */
+  useEffect(() => {
+    // Wire editor save listener: components that handle saving listen to this event
+    const onSave = () => {
+      const saveButton = document.querySelector('.editor-toolbar .btn');
+      if (saveButton) saveButton.click();
+    };
+    window.addEventListener('quicknotes:save', onSave);
+    return () => window.removeEventListener('quicknotes:save', onSave);
+  }, []);
+
+  return (
+    <NotesProvider>
+      <MainShell />
+    </NotesProvider>
   );
 }
 
