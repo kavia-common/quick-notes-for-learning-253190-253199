@@ -46,7 +46,9 @@
      // map server snake_case timestamps to camelCase
      const createdAt = note.createdAt || note.created_at;
      const updatedAt = note.updatedAt || note.updated_at;
-     return { ...note, createdAt, updatedAt };
+     // ensure id is a string for consistent comparisons in UI
+     const id = note.id != null ? String(note.id) : undefined;
+     return { ...note, id, createdAt, updatedAt };
    }
  
    // PUBLIC_INTERFACE

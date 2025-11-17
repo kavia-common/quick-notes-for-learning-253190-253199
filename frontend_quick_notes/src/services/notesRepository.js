@@ -12,16 +12,19 @@
  // PUBLIC_INTERFACE
  export class NotesRepository {
    /** Repository for notes with localStorage persistence and optional remote API.
-    * If REACT_APP_API_BASE is set, uses remote API for CRUD, with local cache fallback.
-    * Supports JSONPlaceholder mapping when REACT_APP_API_BASE === 'https://jsonplaceholder.typicode.com'.
+    * If REACT_APP_API_BASE or REACT_APP_BACKEND_URL is set, uses remote API for CRUD, with local cache fallback.
+    * Supports JSONPlaceholder mapping when base is 'https://jsonplaceholder.typicode.typicode.com'.
+    * Mock mode: if feature flag notes_mock is true, forces local behavior regardless of API base.
     * Each note: { id, title, content, updatedAt, createdAt }
     */
    constructor() {
-     const { apiBase, featureFlags, externalJsonPlaceholder } = getEnvConfig();
+     const { apiBase, featureFlags, externalJsonPlaceholder, useNotesMock } = getEnvConfig();
      this.apiBase = apiBase || '';
      this.flags = featureFlags || {};
      this.isJsonPlaceholder = !!externalJsonPlaceholder;
-     this.client = this.apiBase ? new ApiClient(this.apiBase) : null;
+     // mock mode disables remote client entirely
+     const mockEnabled = useNotesMock === true;
+     this.client = (!mockEnabled && this.apiBase) ? new ApiClient(this.apiBase) : null;
    }
  
    _readAll() {
@@ -47,7 +50,8 @@
      if (!note) return note;
      const createdAt = note.createdAt || note.created_at;
      const updatedAt = note.updatedAt || note.updated_at;
-     return { ...note, createdAt, updatedAt };
+     const id = note.id != null ? String(note.id) : undefined;
+     return { ...note, id, createdAt, updatedAt };
    }
  
    _fromJsonPlaceholder(p) {
@@ -118,7 +122,7 @@
    async getById(id) {
      /** Get a single note by id or null (uses cache/local only) */
      if (!id) return null;
-     return this._readAll().find((n) => n.id === id) || null;
+     return this._readAll().find((n) => String(n.id) === String(id)) || null;
    }
  
    // PUBLIC_INTERFACE
@@ -185,7 +189,7 @@
            normalized = this._normalize(updatedRaw);
          }
          const items = this._readAll();
-         const idx = items.findIndex((n) => n.id === normalized.id);
+         const idx = items.findIndex((n) => String(n.id) === String(normalized.id));
          if (idx !== -1) {
            // ensure updatedAt bumped
            normalized.updatedAt = new Date().toISOString();
@@ -202,7 +206,7 @@
        }
      }
      const items = this._readAll();
-     const idx = items.findIndex((n) => n.id === id);
+     const idx = items.findIndex((n) => String(n.id) === String(id));
      if (idx === -1) throw new Error('Note not found');
      const now = new Date().toISOString();
      const updated = { ...items[idx], ...patch, updatedAt: now };
@@ -217,7 +221,7 @@
      if (this.client) {
        try {
          await this.client.deleteNote(id);
-         const next = this._readAll().filter((n) => n.id !== id);
+         const next = this._readAll().filter((n) => String(n.id) !== String(id));
          this._writeAll(next);
          return true;
        } catch {
@@ -225,7 +229,7 @@
        }
      }
      const items = this._readAll();
-     const next = items.filter((n) => n.id !== id);
+     const next = items.filter((n) => String(n.id) !== String(id));
      this._writeAll(next);
      return next.length !== items.length;
    }

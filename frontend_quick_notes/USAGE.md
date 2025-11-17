@@ -4,8 +4,8 @@
    - Sidebar: search, list, add note
    - Main panel: editor with live preview
  - Persistence: localStorage by default
- - Optional API base URL via REACT_APP_API_BASE (not enabled by default)
- - Feature flags: REACT_APP_FEATURE_FLAGS JSON (e.g. {"useRemoteApi": false})
+ - Optional API base URL via REACT_APP_API_BASE or REACT_APP_BACKEND_URL (not enabled by default)
+ - Feature flags: REACT_APP_FEATURE_FLAGS JSON (e.g. {"useRemoteApi": false, "notes_mock": true})
  - Optional Supabase direct mode with Realtime subscriptions to public.notes
  - Accessibility: labeled controls, roles, aria-live regions
  - Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
@@ -26,10 +26,12 @@
  2) In this React app, set the environment variable:
  
  - REACT_APP_API_BASE=http://localhost:3001
+   or
+ - REACT_APP_BACKEND_URL=http://localhost:3001
  
  3) Start the React app: `npm start`
  
- With REACT_APP_API_BASE set, the app will:
+ With REACT_APP_API_BASE or REACT_APP_BACKEND_URL set, the app will:
  - Use remote API for notes list/create/update/delete
  - Normalize server fields (created_at/updated_at) to createdAt/updatedAt
  - Cache the latest results in localStorage as a fallback
@@ -89,6 +91,19 @@
  Limitations:
  - Without proper RLS policies or disabled RLS, direct anon access may fail.
  - CRUD operations are still handled by the existing repository (local/optional REST). Realtime provides live UI updates when other clients modify the table directly.
+ 
+ ### Mock Mode (In-memory/Local)
+ 
+ To force a mock/in-memory adapter even when API base is configured (useful while backend is offline):
+ 
+ ```
+ REACT_APP_FEATURE_FLAGS={"notes_mock":true}
+ ```
+ 
+ In mock mode the app will:
+ - Use localStorage as the source of truth
+ - Broadcast changes across tabs
+ - Keep the same UI and behavior; no network calls for CRUD
  
  NOTE:
  - Do not change preview/start scripts.
