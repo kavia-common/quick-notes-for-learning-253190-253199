@@ -13,6 +13,30 @@
  - Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
  - Optional API integration via `REACT_APP_API_BASE` (Next.js /api/notes or JSONPlaceholder)
  
+ ## Design System Migration (New)
+ 
+ The app has been migrated to the new Ocean Professional design system. All pages now compose the themed components:
+ - Header: `src/components/ui/Header.jsx`
+ - Sidebar: `src/components/ui/Sidebar.jsx`
+ - Buttons: `src/components/ui/Button.jsx` and `src/components/ui/IconButton.jsx`
+ - Cards: `src/components/ui/Card.jsx`
+ - Text editor: `src/components/ui/TextEditor.jsx`
+ 
+ Global theme is loaded exclusively in `src/index.js` via:
+ 
+ ```js
+ import './theme/index.css';
+ ```
+ 
+ Any legacy global CSS that conflicted has been removed from imports (e.g., `index.css`, `theme.css`). Figma token helpers are imported once from `src/assets/common.css` within `src/theme/index.css`.
+ 
+ To extend the design system:
+ 1) Add or modify CSS variables in `src/theme/index.css` (prefer this for app-level theming).
+ 2) For JS styling needs, use `ThemeProvider` and `useTheme()` in `src/theme/theme.js` to read the current theme object.
+ 3) Build new UI in `src/components/ui`, reusing variables and patterns from existing components.
+ 
+ A temporary non-intrusive "Ocean Professional" banner is shown to help verify the theme is active; you can safely remove `ThemeDebugBanner` from `App.js` after QA.
+ 
  ## Theming and Design Tokens
  
  - Global styles live in `src/theme/index.css`. It imports `assets/common.css` (Figma tokens) and defines Ocean Professional CSS variables:
@@ -24,7 +48,6 @@
    - `ThemeProvider` and `useTheme()` expose a theme object for component logic (do not hardcode secrets).
  - Reusable UI components are under `src/components/ui`:
    - `Button.jsx`, `IconButton.jsx`, `Card.jsx` (includes `NoteCard`), `Header.jsx`, `Sidebar.jsx`, `TextEditor.jsx`
- - The layout and styles reference `assets/stickynote-1-2.css` for spacing/structure mapping and typography helpers in `assets/common.css`.
  
  To tweak colors/spacing:
  1. Edit tokens in `assets/common.css` (design-level) or
@@ -47,7 +70,7 @@
  - GET    {base}/api/notes
  - POST   {base}/api/notes
  - PUT    {base}/api/notes/:id
- - DELETE {base}/api/notes/:id
+ - DELETE {base}/api/notes/:id}
  
  Alternatively, you can point to JSONPlaceholder for demo:
  - `REACT_APP_API_BASE=https://jsonplaceholder.typicode.com`

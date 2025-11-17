@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './theme.css';
 import { NotesProvider, useNotes } from './store/NotesContext';
 import ThemedHeader from './components/ui/Header';
 import ThemedSidebar from './components/ui/Sidebar';
@@ -7,13 +6,41 @@ import NoteEditor from './components/NoteEditor';
 import LoginPage from './components/LoginPage';
 import { ThemeProvider } from './theme/theme';
 
+/**
+ * Small non-intrusive banner to verify Ocean Professional theme is active.
+ * Shown at bottom-left; can be removed after QA.
+ */
+function ThemeDebugBanner() {
+  return (
+    <div
+      aria-label="Theme debug banner"
+      style={{
+        position: 'fixed',
+        left: 8,
+        bottom: 8,
+        zIndex: 50,
+        background: 'rgba(30,58,138,0.95)',
+        color: '#fff',
+        padding: '4px 8px',
+        borderRadius: 6,
+        fontSize: 12,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+        pointerEvents: 'none',
+        opacity: 0.88
+      }}
+    >
+      Ocean Professional
+    </div>
+  );
+}
+
 // Wrapper to handle keyboard shortcuts and compose layout
 function MainShell() {
   const { state, actions } = useNotes();
   const editorSaveRef = useRef(null);
   const [themeMode, setThemeMode] = useState('light');
 
-  // Apply theme attribute
+  // Apply theme attribute (kept for potential future dark mode tokens)
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themeMode);
   }, [themeMode]);
@@ -53,6 +80,7 @@ function MainShell() {
         onClick={() => setThemeMode((t) => (t === 'light' ? 'dark' : 'light'))}
         aria-label={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
         style={{ position: 'fixed', top: 12, right: 12, zIndex: 20 }}
+        title="Toggle theme"
       >
         {themeMode === 'light' ? '🌙 Dark' : '☀️ Light'}
       </button>
@@ -65,12 +93,13 @@ function MainShell() {
               {state.error}
             </div>
           )}
-          <NoteEditor
-            onSaved={() => {}}
-            ref={editorSaveRef}
-          />
+          <NoteEditor onSaved={() => {}} ref={editorSaveRef} />
+          <div className="footer-hint" aria-hidden="true">
+            Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
+          </div>
         </section>
       </main>
+      <ThemeDebugBanner />
     </div>
   );
 }

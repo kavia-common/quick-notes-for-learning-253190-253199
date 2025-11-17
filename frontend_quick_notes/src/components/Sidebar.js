@@ -1,19 +1,20 @@
+/**
+ * DEPRECATED: Legacy Sidebar. Use components/ui/Sidebar.jsx instead.
+ * Left in repo for reference; not used by the application.
+ */
 import React, { useMemo } from 'react';
 import { useNotes } from '../store/NotesContext';
 
 // PUBLIC_INTERFACE
 export default function Sidebar() {
-  /** Sidebar listing notes and search bar */
+  /** Sidebar listing notes and search bar (deprecated variant). */
   const { state, actions } = useNotes();
   const { query, activeId } = state;
 
-  const items = useMemo(() => {
-    // Items already filtered by store when query changes
-    return state.notes;
-  }, [state.notes]);
+  const items = useMemo(() => state.notes, [state.notes]);
 
   return (
-    <aside className="sidebar" aria-label="Notes sidebar">
+    <aside className="sidebar" aria-label="Notes sidebar (deprecated)">
       <div className="sidebar-search">
         <label htmlFor="search" className="visually-hidden">Search notes</label>
         <input
@@ -26,12 +27,7 @@ export default function Sidebar() {
           aria-label="Search notes"
         />
         <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => actions.createNote()}
-            aria-label="Add new note"
-          >
+          <button type="button" className="btn btn-primary" onClick={() => actions.createNote()}>
             Add Note
           </button>
         </div>
@@ -50,17 +46,10 @@ export default function Sidebar() {
           >
             <div>
               <p className="note-list-title">{n.title || 'Untitled'}</p>
-              <div className="note-list-meta">
-                {new Date(n.updatedAt).toLocaleString()}
-              </div>
+              <div className="note-list-meta">{new Date(n.updatedAt).toLocaleString()}</div>
             </div>
           </li>
         ))}
-        {items.length === 0 && (
-          <div className="note-empty" role="note">
-            No notes. Click “Add Note” or press Ctrl/Cmd+N to get started.
-          </div>
-        )}
       </ul>
     </aside>
   );

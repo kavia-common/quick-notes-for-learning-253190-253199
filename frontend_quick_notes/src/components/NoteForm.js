@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNotes } from '../store/NotesContext';
+import Button from './ui/Button';
+import TextEditor from './ui/TextEditor';
 
 // PUBLIC_INTERFACE
 export default function NoteForm() {
-  /** Minimal form to edit currently active note with validation. */
+  /** Minimal form to edit currently active note with validation (themed). */
   const { state, actions } = useNotes();
   const active = state.notes.find(n => n.id === state.activeId) || null;
 
@@ -58,25 +60,14 @@ export default function NoteForm() {
           aria-invalid={!!err}
           aria-describedby={err ? 'nf-title-error' : undefined}
         />
-        <button type="button" className="btn" onClick={save} aria-label="Save note">
-          Save
-        </button>
+        <Button onClick={save} aria-label="Save note">Save</Button>
       </div>
       {err && (
-        <div role="alert" id="nf-title-error" style={{ color: 'var(--color-error)', padding: '8px 12px' }}>
+        <div role="alert" id="nf-title-error" style={{ color: 'var(--ocean-error)', padding: '8px 12px' }}>
           {err}
         </div>
       )}
-      <div className="editor-area">
-        <label htmlFor="nf-content" className="visually-hidden">Note content</label>
-        <textarea
-          id="nf-content"
-          className="textarea"
-          placeholder="Write your note..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-      </div>
+      <TextEditor id="nf-content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Write your note..." />
     </div>
   );
 }

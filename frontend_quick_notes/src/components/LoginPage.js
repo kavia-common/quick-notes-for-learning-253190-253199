@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNotes } from '../store/NotesContext';
+import Button from './ui/Button';
+import { Card } from './ui/Card';
 
 // PUBLIC_INTERFACE
 export default function LoginPage() {
-  /** Simple mocked login screen asking for email or username. */
+  /** Simple mocked login screen asking for email or username (themed). */
   const { actions } = useNotes();
   const [value, setValue] = useState('');
   const [err, setErr] = useState('');
@@ -21,46 +23,32 @@ export default function LoginPage() {
 
   return (
     <div className="app-shell" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
-      <form
-        onSubmit={submit}
-        aria-label="Login form"
-        style={{
-          background: 'var(--color-surface)',
-          border: '1px solid #E5E7EB',
-          borderRadius: '12px',
-          boxShadow: 'var(--shadow-md)',
-          padding: 24,
-          width: 'min(94vw, 420px)'
-        }}
-      >
-        <h1 style={{ marginTop: 0, marginBottom: 8 }}>Quick Notes</h1>
-        <p style={{ color: 'var(--color-muted)', marginTop: 0, marginBottom: 16 }}>
-          Sign in with your email or username to continue.
-        </p>
-        <label htmlFor="login-id" className="visually-hidden">Email or Username</label>
-        <input
-          id="login-id"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Email or username"
-          aria-invalid={!!err}
-          aria-describedby={err ? 'login-error' : undefined}
-          className="input"
-        />
-        {err && (
-          <div role="alert" id="login-error" style={{ color: 'var(--color-error)', marginTop: 8 }}>
-            {err}
-          </div>
-        )}
-        <button
-          type="submit"
-          className="btn btn-primary"
-          aria-label="Sign in"
-          style={{ marginTop: 12 }}
-        >
-          Sign in
-        </button>
-      </form>
+      <Card style={{ padding: 24, width: 'min(94vw, 420px)' }}>
+        <form onSubmit={submit} aria-label="Login form">
+          <h1 style={{ marginTop: 0, marginBottom: 8 }}>Quick Notes</h1>
+          <p style={{ color: 'var(--ocean-muted)', marginTop: 0, marginBottom: 16 }}>
+            Sign in with your email or username to continue.
+          </p>
+          <label htmlFor="login-id" className="visually-hidden">Email or Username</label>
+          <input
+            id="login-id"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Email or username"
+            aria-invalid={!!err}
+            aria-describedby={err ? 'login-error' : undefined}
+            className="input"
+          />
+          {err && (
+            <div role="alert" id="login-error" style={{ color: 'var(--ocean-error)', marginTop: 8 }}>
+              {err}
+            </div>
+          )}
+          <Button type="submit" variant="primary" aria-label="Sign in" style={{ marginTop: 12 }}>
+            Sign in
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }
