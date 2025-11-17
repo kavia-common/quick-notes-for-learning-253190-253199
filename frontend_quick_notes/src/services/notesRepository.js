@@ -13,12 +13,14 @@
  export class NotesRepository {
    /** Repository for notes with localStorage persistence and optional remote API.
     * If REACT_APP_API_BASE is set, uses remote API for CRUD, with local cache fallback.
+    * Supports JSONPlaceholder mapping when REACT_APP_API_BASE === 'https://jsonplaceholder.typicode.com'.
     * Each note: { id, title, content, updatedAt, createdAt }
     */
    constructor() {
-     const { apiBase, featureFlags } = getEnvConfig();
+     const { apiBase, featureFlags, externalJsonPlaceholder } = getEnvConfig();
      this.apiBase = apiBase || '';
      this.flags = featureFlags || {};
+     this.isJsonPlaceholder = !!externalJsonPlaceholder;
      this.client = this.apiBase ? new ApiClient(this.apiBase) : null;
    }
  
@@ -48,6 +50,27 @@
      return { ...note, createdAt, updatedAt };
    }
  
+   _fromJsonPlaceholder(p) {
+     if (!p) return p;
+     const now = new Date().toISOString();
+     return {
+       id: String(p.id),
+       title: p.title || '',
+       content: p.body || '',
+       createdAt: now,
+       updatedAt: now,
+     };
+   }
+ 
+   _toJsonPlaceholderPayload(noteLike) {
+     // Map local note fields to JSONPlaceholder shape
+     return {
+       title: noteLike.title || '',
+       body: noteLike.content || '',
+       userId: 1, // arbitrary for demo API
+     };
+   }
+ 
    _indexAndCache(list) {
      const items = (list || []).map((n) => this._normalize(n));
      // sort by updatedAt desc consistently
@@ -62,7 +85,13 @@
      const q = (query || '').toLowerCase();
      if (this.client) {
        try {
-         const remote = await this.client.listNotes();
+         let remote = await this.client.listNotes();
+         if (this.isJsonPlaceholder) {
+           // Limit payload size and map fields
+           remote = (remote || []).slice(0, 50).map((p) => this._fromJsonPlaceholder(p));
+         } else {
+           remote = (remote || []).map((n) => this._normalize(n));
+         }
          const cached = this._indexAndCache(remote);
          if (!q) return cached;
          return cached.filter(
@@ -99,10 +128,20 @@
      const c = (content || '').trim();
      if (this.client) {
        try {
-         const created = await this.client.createNote({ title: t, content: c });
-         const items = [this._normalize(created), ...this._readAll()];
+         let payload = { title: t, content: c };
+         if (this.isJsonPlaceholder) {
+           payload = this._toJsonPlaceholderPayload({ title: t, content: c });
+         }
+         const createdRaw = await this.client.createNote(payload);
+         let created;
+         if (this.isJsonPlaceholder) {
+           created = this._fromJsonPlaceholder(createdRaw);
+         } else {
+           created = this._normalize(createdRaw);
+         }
+         const items = [created, ...this._readAll()];
          this._writeAll(items);
-         return this._normalize(created);
+         return created;
        } catch {
          // fall back to local
        }
@@ -126,12 +165,31 @@
      /** Update an existing note; remote-first, sync cache, fallback local. */
      if (this.client) {
        try {
-         const updatedRemote = await this.client.updateNote(id, patch);
-         const normalized = this._normalize(updatedRemote);
+         let payload = patch || {};
+         if (this.isJsonPlaceholder) {
+           // Translate patch to JSONPlaceholder fields
+           payload = this._toJsonPlaceholderPayload({
+             title: payload.title,
+             content: payload.content,
+           });
+         }
+         const updatedRaw = await this.client.updateNote(id, payload);
+         let normalized;
+         if (this.isJsonPlaceholder) {
+           // JSONPlaceholder returns 'body', map to local shape and set timestamps
+           const mapped = this._fromJsonPlaceholder(updatedRaw);
+           // preserve id from input (in case service echoes a different type)
+           mapped.id = String(id);
+           normalized = mapped;
+         } else {
+           normalized = this._normalize(updatedRaw);
+         }
          const items = this._readAll();
          const idx = items.findIndex((n) => n.id === normalized.id);
          if (idx !== -1) {
-           items[idx] = normalized;
+           // ensure updatedAt bumped
+           normalized.updatedAt = new Date().toISOString();
+           items[idx] = { ...items[idx], ...normalized };
          } else {
            items.unshift(normalized);
          }

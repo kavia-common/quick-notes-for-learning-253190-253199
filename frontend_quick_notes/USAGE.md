@@ -36,6 +36,23 @@
  
  If the API is unreachable, the app automatically falls back to localStorage.
  
+ ### Option B: Use Public JSONPlaceholder (Demo)
+ 
+ You can also use the public JSONPlaceholder API as a demo backend:
+ 
+ - REACT_APP_API_BASE=https://jsonplaceholder.typicode.com
+ 
+ Behavior in this mode:
+ - Lists notes from GET /posts (first 50 items to keep payload small)
+ - Field mapping: { id, title, body } ↔ { id, title, content }
+ - Create/Update: sends/receives the "body" field instead of "content"
+ - Timestamps (createdAt/updatedAt) are synthesized locally with new Date().toISOString()
+ - Local cache in localStorage is maintained after operations
+ 
+ Limitations:
+ - JSONPlaceholder is a fake online REST API; writes are not persisted on the server.
+ - After refresh, you will see the original list again (from /posts); local cache persists in your browser.
+ 
  NOTE:
  - Do not change preview/start scripts; use REACT_APP_API_BASE to toggle remote mode.
  - Other environment variables supported: REACT_APP_FEATURE_FLAGS, REACT_APP_NODE_ENV, etc.
