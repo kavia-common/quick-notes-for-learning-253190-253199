@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import NoteEditor from './components/NoteEditor';
 import NoteView from './components/NoteView';
+import LoginPage from './components/LoginPage';
 
 // Wrapper to handle keyboard shortcuts and compose layout
 function MainShell() {
@@ -42,6 +43,11 @@ function MainShell() {
     window.dispatchEvent(evt);
   };
 
+  // Guarded view: show login if no user
+  if (!state.authUser) {
+    return <LoginPage />;
+  }
+
   return (
     <div className="app-shell">
       <button
@@ -73,7 +79,7 @@ function MainShell() {
 
 // PUBLIC_INTERFACE
 function App() {
-  /** Root application component providing NotesProvider and composed UI */
+  /** Root application component providing NotesProvider and composed UI with login guard */
   useEffect(() => {
     // Wire editor save listener: components that handle saving listen to this event
     const onSave = () => {

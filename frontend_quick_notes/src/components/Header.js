@@ -10,6 +10,9 @@ export default function Header({ onSave }) {
   return (
     <header className="header" role="banner">
       <h1 className="header-title" aria-label="Application title">Quick Notes</h1>
+      <div style={{ marginLeft: 'auto', marginRight: 8, fontSize: 12, opacity: 0.9 }}>
+        {state.authUser ? `Signed in as ${state.authUser.name || state.authUser.email || state.authUser.id}` : ''}
+      </div>
       <div className="header-actions" role="toolbar" aria-label="Note actions">
         <button
           type="button"
@@ -39,6 +42,17 @@ export default function Header({ onSave }) {
         >
           Delete
         </button>
+        {state.authUser && (
+          <button
+            type="button"
+            className="btn"
+            onClick={() => actions.logout()}
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </header>
   );
