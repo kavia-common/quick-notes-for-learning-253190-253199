@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './theme/index.css';
 import './theme.css';
 import { NotesProvider, useNotes } from './store/NotesContext';
 import ThemedHeader from './components/ui/Header';
