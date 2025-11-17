@@ -1,0 +1,53 @@
+@import "../../assets/quick-note-community-102-1860.css";
+
+/* Quick Note Community theme variable mappings
+   This file maps the Figma-exported tokens to the app's variable contract.
+   It is applied when [data-theme="quicknote"] is present on html or body.
+*/
+:root[data-theme="quicknote"] {
+  /* Colors */
+  --ocean-primary: var(--color-000000, #000000); /* Using style_0 color as strong accent */
+  --ocean-secondary: var(--color-d7d1d6, #d7d1d6); /* Secondary pulled from token grey */
+  --ocean-success: #1b7f5f; /* community-leaning green; fallback */
+  --ocean-error: #c33a2b;   /* subtle red; fallback */
+
+  /* Background and surfaces derived from tokens */
+  --ocean-bg: var(--color-d7d1d6, #f0f0f0); /* page bg similar to qnc-root */
+  --ocean-surface: #ffffff;
+  --ocean-text: var(--color-000000, #111111);
+  --ocean-muted: rgba(0,0,0,0.6);
+
+  /* Spacing mapped to available tokens (fallback to base scale) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: var(--spacing-sm, 18px);
+  --space-4: var(--spacing-md, 20px);
+  --space-5: 22px;
+  --space-6: var(--spacing-lg, 36px);
+  --space-8: 32px;
+
+  /* Radii from tokens (style_0 radius 4px) with sensible elevations */
+  --ocean-radius-sm: var(--style-0-border-radius, 6px);
+  --ocean-radius-md: 10px;
+  --ocean-radius-lg: 14px;
+
+  /* Shadows - none defined explicitly, keep light to match community look */
+  --ocean-shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --ocean-shadow-md: 0 6px 18px rgba(0,0,0,0.10);
+}
+
+/* Optional subtle overrides for specific components under quicknote */
+:root[data-theme="quicknote"] .header {
+  background: linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.70) 100%);
+}
+
+:root[data-theme="quicknote"] .btn-primary {
+  background: var(--style-1-background-color, #e6e2e7);
+  color: #111;
+}
+
+:root[data-theme="quicknote"] .note-list-item.active {
+  background: var(--style-2-background-color, #d7d1d1);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35);
+  border-color: rgba(0,0,0,0.35);
+}

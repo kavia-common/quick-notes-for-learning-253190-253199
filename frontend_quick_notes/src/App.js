@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NotesProvider, useNotes } from './store/NotesContext';
 import ThemedHeader from './components/ui/Header';
 import ThemedSidebar from './components/ui/Sidebar';
@@ -7,10 +7,12 @@ import LoginPage from './components/LoginPage';
 import { ThemeProvider } from './theme/theme';
 
 /**
- * Small non-intrusive banner to verify Ocean Professional theme is active.
+ * Small non-intrusive banner to verify active theme.
  * Shown at bottom-left; can be removed after QA.
  */
 function ThemeDebugBanner() {
+  const el = document?.documentElement;
+  const themeName = el?.getAttribute('data-theme') === 'quicknote' ? 'Quick Note Community' : 'Ocean Professional';
   return (
     <div
       aria-label="Theme debug banner"
@@ -19,7 +21,7 @@ function ThemeDebugBanner() {
         left: 8,
         bottom: 8,
         zIndex: 50,
-        background: 'rgba(30,58,138,0.95)',
+        background: 'rgba(0,0,0,0.85)',
         color: '#fff',
         padding: '4px 8px',
         borderRadius: 6,
@@ -29,7 +31,7 @@ function ThemeDebugBanner() {
         opacity: 0.88
       }}
     >
-      Ocean Professional
+      {themeName}
     </div>
   );
 }
@@ -38,12 +40,6 @@ function ThemeDebugBanner() {
 function MainShell() {
   const { state, actions } = useNotes();
   const editorSaveRef = useRef(null);
-  const [themeMode, setThemeMode] = useState('light');
-
-  // Apply theme attribute (kept for potential future dark mode tokens)
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', themeMode);
-  }, [themeMode]);
 
   // Keyboard shortcuts: Ctrl/Cmd+N, Ctrl/Cmd+S
   useEffect(() => {
@@ -75,15 +71,6 @@ function MainShell() {
 
   return (
     <div className="app-shell">
-      <button
-        className="btn"
-        onClick={() => setThemeMode((t) => (t === 'light' ? 'dark' : 'light'))}
-        aria-label={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
-        style={{ position: 'fixed', top: 12, right: 12, zIndex: 20 }}
-        title="Toggle theme"
-      >
-        {themeMode === 'light' ? '🌙 Dark' : '☀️ Light'}
-      </button>
       <ThemedHeader onSave={onSave} />
       <main className="layout" role="main">
         <ThemedSidebar />

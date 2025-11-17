@@ -1,9 +1,11 @@
- # Quick Notes React App (Ocean Professional)
- 
+ # Quick Notes React App (Ocean Professional + Quick Note Community)
+
  A fast, lightweight note-taking app with a login screen, sidebar list, and editor panel.
- 
+
  ## Highlights
- - Ocean Professional theme (clean, classic style)
+ - Multi-theme support:
+   - Ocean Professional (default)
+   - Quick Note Community (Figma-derived)
  - Login (mock, email/username) and Logout
  - Create, view, edit, delete notes
  - Realtime multi-tab sync (BroadcastChannel with storage fallback)
@@ -12,88 +14,81 @@
  - Accessibility: ARIA labels, keyboard navigable
  - Shortcuts: Ctrl/Cmd+N (new), Ctrl/Cmd+S (save)
  - Optional API integration via `REACT_APP_API_BASE` (Next.js /api/notes or JSONPlaceholder)
- 
- ## Design System Migration (New)
- 
- The app has been migrated to the new Ocean Professional design system. All pages now compose the themed components:
- - Header: `src/components/ui/Header.jsx`
- - Sidebar: `src/components/ui/Sidebar.jsx`
- - Buttons: `src/components/ui/Button.jsx` and `src/components/ui/IconButton.jsx`
- - Cards: `src/components/ui/Card.jsx`
- - Text editor: `src/components/ui/TextEditor.jsx`
- 
- Global theme is loaded exclusively in `src/index.js` via:
- 
+
+ ## Design System and Theme Layers
+
+ Global theme CSS is loaded once in `src/index.js`:
+
  ```js
  import './theme/index.css';
  ```
- 
- Any legacy global CSS that conflicted has been removed from imports (e.g., `index.css`, `theme.css`). Figma token helpers are imported once from `src/assets/common.css` within `src/theme/index.css`.
- 
- To extend the design system:
- 1) Add or modify CSS variables in `src/theme/index.css` (prefer this for app-level theming).
- 2) For JS styling needs, use `ThemeProvider` and `useTheme()` in `src/theme/theme.js` to read the current theme object.
- 3) Build new UI in `src/components/ui`, reusing variables and patterns from existing components.
- 
- A temporary non-intrusive "Ocean Professional" banner is shown to help verify the theme is active; you can safely remove `ThemeDebugBanner` from `App.js` after QA.
- 
- ## Theming and Design Tokens
- 
- - Global styles live in `src/theme/index.css`. It imports `assets/common.css` (Figma tokens) and defines Ocean Professional CSS variables:
-   - Colors: `--ocean-primary`, `--ocean-secondary`, `--ocean-success`, `--ocean-error`, `--ocean-bg`, `--ocean-surface`, `--ocean-text`, `--ocean-muted`
-   - Spacing: `--space-*`
-   - Radius: `--ocean-radius-*`
-   - Shadows: `--ocean-shadow-*`
- - JS theme access is available via `src/theme/theme.js`:
-   - `ThemeProvider` and `useTheme()` expose a theme object for component logic (do not hardcode secrets).
- - Reusable UI components are under `src/components/ui`:
-   - `Button.jsx`, `IconButton.jsx`, `Card.jsx` (includes `NoteCard`), `Header.jsx`, `Sidebar.jsx`, `TextEditor.jsx`
- 
- To tweak colors/spacing:
- 1. Edit tokens in `assets/common.css` (design-level) or
- 2. Adjust CSS variables in `src/theme/index.css` (app-level).
- 
+
+ Base tokens from Figma are imported in `src/theme/index.css` via `src/assets/common.css`. Theme variables are split into layers:
+ - `src/theme/themes/ocean.css` – variables under `[data-theme="ocean"]` (and default)
+ - `src/theme/themes/quickNoteCommunity.css` – variables under `[data-theme="quicknote"]` mapping Figma tokens from `assets/quick-note-community-102-1860.css`
+
+ Runtime theme is applied by setting `[data-theme="<key>"]` on `<html>`. The app persists the selection in `localStorage` under `app_theme`.
+
+ JS theme provider:
+ - `src/theme/theme.js`
+   - `ThemeProvider` manages themeKey ('ocean' | 'quicknote'), writes `[data-theme]`, and persists to `localStorage`.
+   - `useTheme()` exposes `{ theme, themeKey, setTheme }`.
+
+ Header includes a minimal ThemeSwitcher:
+ - `src/components/ui/Header.jsx` adds a button to toggle between themes.
+
+ ### Add a new theme
+ 1. Create a CSS variables file in `src/theme/themes/<name>.css` with a `[data-theme="<name>"]` block that defines the same variable contract:
+    - `--ocean-primary`, `--ocean-secondary`, `--ocean-success`, `--ocean-error`
+    - `--ocean-bg`, `--ocean-surface`, `--ocean-text`, `--ocean-muted`
+    - `--ocean-shadow-*`, `--ocean-radius-*`, `--space-*`
+ 2. Import the new file in `src/theme/index.css`.
+ 3. Extend the registry in `src/theme/theme.js` to include a JS theme object.
+ 4. Update any UI element (e.g., Header) to allow selecting the new theme key, or build a settings screen.
+
+ Tip: Provide fallbacks in your theme CSS (e.g., `var(--color-000000, #000)`) to avoid runtime breaks.
+
  ## Scripts
  - `npm start` – run locally
  - `npm test` – unit tests
  - `npm run build` – production build
- 
+
  See USAGE.md for details.
- 
+
  ## Environment and API Integration
- 
+
  This app reads configuration from environment variables (Create React App style). For API integration a single base URL is derived in this order:
  1. `REACT_APP_API_BASE` (preferred)
  2. `REACT_APP_BACKEND_URL` (fallback alias)
- 
+
  The base URL should point to a backend exposing REST routes:
  - GET    {base}/api/notes
  - POST   {base}/api/notes
  - PUT    {base}/api/notes/:id
  - DELETE {base}/api/notes/:id}
- 
+
  Alternatively, you can point to JSONPlaceholder for demo:
  - `REACT_APP_API_BASE=https://jsonplaceholder.typicode.com`
    - List: GET /posts
    - Create/Update/Delete: /posts CRUD (non-persistent, mapped to local fields)
- 
+
  Feature flags are controlled by `REACT_APP_FEATURE_FLAGS` (JSON string). Example:
- 
+
  ```
  REACT_APP_FEATURE_FLAGS={"notes_mock":true,"useSupabaseDirect":false}
  ```
- 
+
  - `notes_mock`: Forces the app to use local in-memory/localStorage repository even if API is configured. Useful when backend is offline.
  - `useSupabaseDirect`: Enables direct Supabase Realtime integration when Supabase env vars are set (see USAGE.md).
- 
+
  Security notes:
  - No secrets are hardcoded. Supabase and other keys must be provided via env.
  - The app avoids logging sensitive values.
- 
+
  ### Quick Start
  1. Copy `.env.example` to `.env` and adjust values.
  2. Optionally set `REACT_APP_API_BASE` or `REACT_APP_BACKEND_URL`.
  3. Optionally set `REACT_APP_FEATURE_FLAGS` to control mock behavior.
  4. `npm start`
- 
+
  If the API is unreachable, the app gracefully falls back to cached/local storage.
